@@ -1,0 +1,460 @@
+/* ============================================================
+   색상 토큰 및 기본 스타일
+   - 파란색 주색 / 흰 카드 / 둥근 모서리 / 부드러운 그림자
+   - 정답=초록, 오답=빨강
+   ============================================================ */
+:root {
+  --blue: #2f6fed;
+  --blue-dark: #1f4fc4;
+  --blue-light: #eaf1ff;
+  --green: #1f9d57;
+  --green-light: #e4f7ec;
+  --red: #e0453a;
+  --red-light: #fdeceb;
+  --bg: #f4f7fc;
+  --card: #ffffff;
+  --text: #1f2733;
+  --text-soft: #5b6573;
+  --border: #d9e1ee;
+  --shadow: 0 6px 18px rgba(31, 79, 196, 0.12);
+  --radius: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* 앱 전체 너비 제한 + 중앙 정렬 */
+.app {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 16px 16px 64px;
+}
+
+/* ── 헤더 ── */
+.header {
+  text-align: center;
+  padding: 24px 12px 8px;
+}
+.header h1 {
+  font-size: 30px;
+  margin: 0 0 6px;
+  color: var(--blue-dark);
+}
+.header p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 16px;
+}
+
+/* ── 버튼 그룹 (과목/모드) ── */
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin: 16px 0;
+}
+.pill {
+  min-height: 48px;
+  padding: 10px 20px;
+  border: 2px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  border-radius: 999px;
+  font-size: 17px;
+  font-weight: 600;
+  transition: transform 0.05s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.pill:hover {
+  border-color: var(--blue);
+}
+.pill:active {
+  transform: scale(0.97);
+}
+.pill.active {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+
+/* 모드 탭은 조금 더 크게 강조 */
+.mode-tabs .pill {
+  font-size: 18px;
+  padding: 12px 22px;
+}
+
+/* ── 상태 표시줄 ── */
+.statusbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin: 8px 0 20px;
+}
+.status-chip {
+  background: var(--blue-light);
+  color: var(--blue-dark);
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.status-chip b {
+  font-size: 17px;
+}
+
+/* ── 일반 카드 박스 ── */
+.panel {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+}
+
+/* ── 플래시카드 ── */
+.flashcard {
+  perspective: 1200px;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+.flashcard-inner {
+  position: relative;
+  width: 100%;
+  min-height: 320px;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+.flashcard-inner.flipped {
+  transform: rotateY(180deg);
+}
+.flashcard-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 2px solid var(--border);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.flashcard-back {
+  transform: rotateY(180deg);
+  justify-content: flex-start;
+}
+.flashcard-emoji {
+  font-size: 64px;
+  margin-bottom: 12px;
+}
+.flashcard-word {
+  font-size: 38px;
+  font-weight: 800;
+  color: var(--blue-dark);
+  margin: 4px 0;
+}
+.flashcard-tags {
+  color: var(--text-soft);
+  font-size: 16px;
+}
+.flashcard-hint {
+  margin-top: 18px;
+  color: var(--text-soft);
+  font-size: 14px;
+}
+.flashcard-back .label {
+  align-self: flex-start;
+  font-weight: 700;
+  color: var(--blue);
+  margin: 14px 0 4px;
+}
+.flashcard-back .meaning {
+  font-size: 22px;
+  font-weight: 700;
+}
+.flashcard-back .example {
+  font-size: 19px;
+}
+
+/* ── 큰 동작 버튼 ── */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+}
+.btn {
+  min-height: 52px;
+  padding: 12px 22px;
+  border-radius: 14px;
+  border: none;
+  font-size: 17px;
+  font-weight: 700;
+  background: var(--blue);
+  color: #fff;
+  transition: transform 0.05s ease, background 0.15s ease;
+}
+.btn:hover {
+  background: var(--blue-dark);
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn.secondary {
+  background: #fff;
+  color: var(--blue-dark);
+  border: 2px solid var(--border);
+}
+.btn.secondary:hover {
+  border-color: var(--blue);
+  background: var(--blue-light);
+}
+.btn.success {
+  background: var(--green);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.progress-text {
+  text-align: center;
+  color: var(--text-soft);
+  font-weight: 600;
+  margin: 14px 0;
+}
+
+/* ── 퀴즈 ── */
+.quiz-question {
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  margin: 8px 0 20px;
+  line-height: 1.7;
+}
+.quiz-question .blank {
+  color: var(--blue);
+}
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.option {
+  min-height: 64px;
+  border: 2px solid var(--border);
+  background: var(--card);
+  border-radius: 14px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.option:hover:not(:disabled) {
+  border-color: var(--blue);
+  background: var(--blue-light);
+}
+.option.selected {
+  border-color: var(--blue);
+  background: var(--blue-light);
+}
+.option.correct {
+  border-color: var(--green);
+  background: var(--green-light);
+  color: var(--green);
+}
+.option.wrong {
+  border-color: var(--red);
+  background: var(--red-light);
+  color: var(--red);
+}
+.option:disabled {
+  cursor: default;
+}
+
+/* 정답/오답 안내 (색 + 문장) */
+.feedback {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 18px;
+  text-align: center;
+}
+.feedback.correct {
+  background: var(--green-light);
+  color: var(--green);
+}
+.feedback.wrong {
+  background: var(--red-light);
+  color: var(--red);
+}
+.feedback .detail {
+  display: block;
+  margin-top: 6px;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text);
+}
+
+/* 안내 메시지 (미선택 등) */
+.notice {
+  margin-top: 14px;
+  text-align: center;
+  color: var(--red);
+  font-weight: 700;
+}
+
+/* ── 결과 화면 ── */
+.result {
+  text-align: center;
+}
+.result .score {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--blue-dark);
+  margin: 8px 0;
+}
+
+/* ── 빈 상태 / 부족 안내 ── */
+.empty {
+  text-align: center;
+  padding: 36px 16px;
+  color: var(--text-soft);
+}
+.empty .emoji {
+  font-size: 52px;
+}
+.empty p {
+  font-size: 18px;
+  margin: 10px 0 0;
+}
+
+/* ── 오답 복습 카드 목록 ── */
+.review-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.review-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+.review-card .top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.review-card .top .emoji {
+  font-size: 30px;
+}
+.review-card .top .word {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--blue-dark);
+}
+.review-card .tags {
+  color: var(--text-soft);
+  font-size: 14px;
+  margin: 4px 0 10px;
+}
+.review-card .meaning {
+  font-weight: 700;
+}
+.review-card .example {
+  color: var(--text-soft);
+}
+.review-card .actions {
+  margin-top: 14px;
+  justify-content: flex-start;
+}
+
+/* 오늘의 어휘 띠 */
+.word-of-day {
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.word-of-day .emoji {
+  font-size: 40px;
+}
+.word-of-day .label {
+  font-size: 14px;
+  opacity: 0.9;
+}
+.word-of-day .word {
+  font-size: 24px;
+  font-weight: 800;
+}
+.word-of-day .meaning {
+  font-size: 15px;
+  opacity: 0.95;
+}
+
+/* 음성 미지원 안내 */
+.tts-warning {
+  text-align: center;
+  color: var(--red);
+  font-weight: 600;
+  margin-top: 12px;
+}
+
+/* ============================================================
+   반응형: 스마트폰에서는 2열 → 1열, 글자/버튼 유지
+   ============================================================ */
+@media (max-width: 600px) {
+  body {
+    font-size: 17px;
+  }
+  .header h1 {
+    font-size: 24px;
+  }
+  .options,
+  .review-list {
+    grid-template-columns: 1fr;
+  }
+  .flashcard-word {
+    font-size: 32px;
+  }
+  .flashcard-inner {
+    min-height: 300px;
+  }
+  .quiz-question {
+    font-size: 20px;
+  }
+}
