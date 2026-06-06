@@ -8,7 +8,8 @@
 -- ============================================================
 
 -- 비밀번호 해시(crypt)를 위해 pgcrypto 확장 사용
-create extension if not exists pgcrypto;
+-- Supabase는 확장을 extensions 스키마에 설치합니다.
+create extension if not exists pgcrypto with schema extensions;
 
 -- ── 학생 계정 ──────────────────────────────────────────────
 create table if not exists public.students (
@@ -77,7 +78,7 @@ begin
   end if;
 
   insert into students(username, password_hash)
-  values (v_username, crypt(p_password, gen_salt('bf')))
+  values (v_username, extensions.crypt(p_password, extensions.gen_salt('bf')))
   returning students.id into v_id;
 
   insert into student_stats(student_id) values (v_id) on conflict do nothing;
@@ -95,7 +96,7 @@ begin
     select s.id, s.username
     from students s
     where lower(s.username) = lower(trim(p_username))
-      and s.password_hash = crypt(p_password, s.password_hash);
+      and s.password_hash = extensions.crypt(p_password, s.password_hash);
 end;
 $$;
 
