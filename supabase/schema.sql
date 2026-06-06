@@ -65,7 +65,7 @@ grant select on public.student_stats to anon;
 -- 회원가입: 아이디 중복/길이 검사 후 생성, 통계 행도 함께 생성
 create or replace function public.register_student(p_username text, p_password text)
 returns table(id uuid, username text)
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 declare
   v_username text := trim(p_username);
   v_id uuid;
@@ -89,7 +89,7 @@ $$;
 -- 로그인: 아이디+비밀번호 일치 시 학생 정보 반환 (없으면 빈 결과)
 create or replace function public.login_student(p_username text, p_password text)
 returns table(id uuid, username text)
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 begin
   return query
     select s.id, s.username
@@ -102,7 +102,7 @@ $$;
 -- 통계 누적 (행 없으면 생성, 있으면 증가)
 create or replace function public.record_answer(p_student_id uuid, p_correct boolean)
 returns void
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 begin
   insert into student_stats(student_id, attempts, correct)
   values (p_student_id, 1, case when p_correct then 1 else 0 end)
@@ -120,7 +120,7 @@ $$;
 -- 학생 목록 조회 (PIN 일치 시에만)
 create or replace function public.admin_list_students(p_pin text)
 returns table(id uuid, username text, created_at timestamptz)
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 begin
   if p_pin <> '20260606' then raise exception 'INVALID_PIN'; end if;
   return query select s.id, s.username, s.created_at from students s order by s.created_at desc;
@@ -130,7 +130,7 @@ $$;
 -- 학생 삭제 (PIN 일치 시에만, 오답/통계도 함께 삭제됨)
 create or replace function public.admin_delete_student(p_pin text, p_student_id uuid)
 returns void
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 begin
   if p_pin <> '20260606' then raise exception 'INVALID_PIN'; end if;
   delete from students where id = p_student_id;
