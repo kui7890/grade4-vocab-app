@@ -4,3 +4,8 @@ dist-ssr
 *.local
 .vercel
 .DS_Store
+
+# 환경변수(접속 키)는 커밋하지 않습니다
+.env
+.env.*
+!.env.example
