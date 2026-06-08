@@ -115,6 +115,64 @@ export async function recordAnswerRemote(studentId: string, isCorrect: boolean):
   if (error) throw new Error(error.message);
 }
 
+// ── 퀴즈 응답 세분화 로그 + 단어 숙달 (P1) ─────────────────
+export interface QuizResponseInput {
+  studentId: string;
+  wordId: string;
+  subject: string;
+  unit: string;
+  quizType: "meaning" | "fill";
+  isCorrect: boolean;
+  chosenWordId: string | null;
+}
+
+export async function recordQuizResponse(r: QuizResponseInput): Promise<void> {
+  const sb = requireClient();
+  const { error } = await sb.rpc("record_quiz_response", {
+    p_student_id: r.studentId,
+    p_word_id: r.wordId,
+    p_subject: r.subject,
+    p_unit: r.unit,
+    p_quiz_type: r.quizType,
+    p_is_correct: r.isCorrect,
+    p_chosen_word_id: r.chosenWordId,
+  });
+  if (error) throw new Error(error.message);
+}
+
+// ── 학생 대시보드 (P1) ─────────────────────────────────────
+export interface DashboardSubject {
+  subject: string;
+  attempts: number;
+  correct: number;
+  attempted_words: number;
+  mastered_words: number;
+}
+
+export interface DashboardData {
+  attempts: number;
+  correct: number;
+  wrong_count: number;
+  streak: number;
+  recent_wrong: string[]; // 최근 오답 word_id 목록
+  subjects: DashboardSubject[];
+}
+
+export async function getStudentDashboard(studentId: string): Promise<DashboardData> {
+  const sb = requireClient();
+  const { data, error } = await sb.rpc("get_student_dashboard", { p_student_id: studentId });
+  if (error) throw new Error(error.message);
+  const d = (data ?? {}) as Partial<DashboardData>;
+  return {
+    attempts: d.attempts ?? 0,
+    correct: d.correct ?? 0,
+    wrong_count: d.wrong_count ?? 0,
+    streak: d.streak ?? 0,
+    recent_wrong: d.recent_wrong ?? [],
+    subjects: d.subjects ?? [],
+  };
+}
+
 // ── 에러 코드 → 한국어 안내 메시지 ─────────────────────────
 export function friendlyError(message: string): string {
   if (message.includes("SUPABASE_NOT_CONFIGURED"))

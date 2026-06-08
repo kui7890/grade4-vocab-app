@@ -439,6 +439,143 @@ button {
 }
 
 /* ============================================================
+   학생 대시보드
+   ============================================================ */
+.dashboard {
+  margin-top: 8px;
+}
+.dash-greeting {
+  font-size: 22px;
+  margin: 8px 0 2px;
+}
+.dash-greeting b {
+  color: var(--blue-dark);
+}
+.dash-feedback {
+  color: var(--text-soft);
+  margin: 0 0 16px;
+  font-size: 16px;
+}
+
+/* 요약 통계 카드 (4열 → 모바일 2열) */
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.stat-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 12px;
+  text-align: center;
+}
+.stat-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--blue-dark);
+}
+.stat-label {
+  font-size: 14px;
+  color: var(--text-soft);
+  margin-top: 4px;
+}
+
+/* 바로가기 버튼 줄 */
+.dash-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.dash-actions .btn {
+  text-decoration: none;
+  flex: 1;
+  min-width: 140px;
+  text-align: center;
+}
+
+.dash-section {
+  margin-bottom: 18px;
+}
+.dash-title {
+  margin: 0 0 14px;
+  font-size: 20px;
+  color: var(--blue-dark);
+}
+.dash-muted {
+  color: var(--text-soft);
+  margin: 0;
+}
+
+/* 교과별 진행 막대 */
+.subject-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.subject-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.subject-name {
+  font-weight: 800;
+  font-size: 18px;
+}
+.subject-meta {
+  font-size: 14px;
+  color: var(--text-soft);
+}
+.progress-bar {
+  height: 14px;
+  background: var(--blue-light);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--blue);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* 최근 오답 미리보기 */
+.recent-wrong {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.recent-wrong li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.rw-emoji {
+  font-size: 24px;
+}
+.rw-word {
+  font-weight: 800;
+  color: var(--blue-dark);
+  min-width: 84px;
+}
+.rw-meaning {
+  color: var(--text-soft);
+  font-size: 15px;
+}
+
+/* ============================================================
    로그인 / 회원가입 / 관리자
    ============================================================ */
 .auth-wrap {
@@ -594,6 +731,9 @@ button {
   .options,
   .review-list {
     grid-template-columns: 1fr;
+  }
+  .dash-stats {
+    grid-template-columns: 1fr 1fr;
   }
   .flashcard-word {
     font-size: 32px;

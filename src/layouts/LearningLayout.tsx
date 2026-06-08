@@ -5,37 +5,40 @@ import { VOCAB_DB } from "../data/vocab";
 import { useAuth } from "../auth/AuthContext";
 import { useWrongWords } from "../hooks/useWrongWords";
 import { useStats } from "../hooks/useStats";
-import Header from "../components/Header";
+import { recordQuizResponse } from "../lib/api";
 import SubjectFilter from "../components/SubjectFilter";
-import ModeTabs from "../components/ModeTabs";
 import StatusBar from "../components/StatusBar";
 
-// 학습 화면(카드/퀴즈/오답)이 공유하는 데이터.
-// Outlet context로 하위 라우트에 전달한다.
+// 카드/퀴즈/오답 화면이 공유하는 데이터 (Outlet context).
 export interface LearningContext {
   filteredWords: VocabWord[];
   wrongWords: VocabWord[];
   addWrong: (id: string) => void;
   removeWrong: (id: string) => void;
   recordAnswer: (isCorrect: boolean) => void;
+  // 퀴즈 응답 세분화 로그 (분석/숙달용, fire-and-forget)
+  logResponse: (r: {
+    word: VocabWord;
+    quizType: "meaning" | "fill";
+    isCorrect: boolean;
+    chosenWordId: string | null;
+  }) => void;
 }
 
-// 로그인한 학생의 공통 학습 화면 골격 (헤더 + 과목필터 + 모드탭 + 상태바 + 하위 라우트)
+// 학습 화면 전용 골격 (과목 필터 + 상태바 + 하위 라우트)
 export default function LearningLayout() {
-  const { student, logout } = useAuth();
+  const { student } = useAuth();
   const [subject, setSubject] = useState<SubjectFilterValue>("전체");
 
   const studentId = student?.id ?? null;
   const { wrongIds, addWrong, removeWrong } = useWrongWords(studentId);
   const { recordAnswer, accuracy, stats } = useStats(studentId);
 
-  // 선택된 과목에 맞는 어휘 목록
   const filteredWords = useMemo(
     () => (subject === "전체" ? VOCAB_DB : VOCAB_DB.filter((w) => w.subject === subject)),
     [subject]
   );
 
-  // 오답으로 저장된 어휘 목록 (VOCAB_DB에서 id로 조회)
   const wrongWords = useMemo(
     () =>
       wrongIds
@@ -44,13 +47,33 @@ export default function LearningLayout() {
     [wrongIds]
   );
 
-  const context: LearningContext = { filteredWords, wrongWords, addWrong, removeWrong, recordAnswer };
+  const logResponse: LearningContext["logResponse"] = ({ word, quizType, isCorrect, chosenWordId }) => {
+    if (!studentId) return;
+    recordQuizResponse({
+      studentId,
+      wordId: word.id,
+      subject: word.subject,
+      unit: word.unit,
+      quizType,
+      isCorrect,
+      chosenWordId,
+    }).catch(() => {
+      /* 로깅 실패는 학습 흐름을 막지 않는다 */
+    });
+  };
+
+  const context: LearningContext = {
+    filteredWords,
+    wrongWords,
+    addWrong,
+    removeWrong,
+    recordAnswer,
+    logResponse,
+  };
 
   return (
-    <div className="app">
-      <Header studentName={student?.username ?? ""} onLogout={logout} />
+    <>
       <SubjectFilter value={subject} onChange={setSubject} />
-      <ModeTabs />
       <StatusBar
         subject={subject}
         wordCount={filteredWords.length}
@@ -59,6 +82,6 @@ export default function LearningLayout() {
         attempts={stats.attempts}
       />
       <Outlet context={context} />
-    </div>
+    </>
   );
 }

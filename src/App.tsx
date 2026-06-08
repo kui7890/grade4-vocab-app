@@ -1,7 +1,9 @@
 import { Routes, Route, Navigate, useOutletContext } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
 import Login from "./components/Login";
+import AppLayout from "./layouts/AppLayout";
 import LearningLayout, { type LearningContext } from "./layouts/LearningLayout";
+import StudentDashboard from "./pages/StudentDashboard";
 import TeacherPage from "./pages/TeacherPage";
 import Flashcard from "./components/Flashcard";
 import Quiz from "./components/Quiz";
@@ -14,9 +16,16 @@ function CardsRoute() {
 }
 
 function QuizRoute() {
-  const { filteredWords, addWrong, removeWrong, recordAnswer } = useOutletContext<LearningContext>();
+  const { filteredWords, addWrong, removeWrong, recordAnswer, logResponse } =
+    useOutletContext<LearningContext>();
   return (
-    <Quiz words={filteredWords} addWrong={addWrong} removeWrong={removeWrong} recordAnswer={recordAnswer} />
+    <Quiz
+      words={filteredWords}
+      addWrong={addWrong}
+      removeWrong={removeWrong}
+      recordAnswer={recordAnswer}
+      logResponse={logResponse}
+    />
   );
 }
 
@@ -34,13 +43,15 @@ export default function App() {
       <Route path="/teacher" element={<TeacherPage />} />
 
       {student ? (
-        // 로그인 상태: 공통 학습 레이아웃 + 모드별 라우트
-        <Route element={<LearningLayout />}>
-          <Route path="/" element={<Navigate to="/cards" replace />} />
-          <Route path="/cards" element={<CardsRoute />} />
-          <Route path="/quiz" element={<QuizRoute />} />
-          <Route path="/review" element={<ReviewRoute />} />
-          <Route path="*" element={<Navigate to="/cards" replace />} />
+        // 로그인 상태: 최상위 레이아웃(헤더+메인내비) 아래 대시보드/학습 화면
+        <Route element={<AppLayout />}>
+          <Route index element={<StudentDashboard />} />
+          <Route element={<LearningLayout />}>
+            <Route path="cards" element={<CardsRoute />} />
+            <Route path="quiz" element={<QuizRoute />} />
+            <Route path="review" element={<ReviewRoute />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       ) : (
         // 비로그인 상태: 어떤 경로든 로그인/회원가입 화면

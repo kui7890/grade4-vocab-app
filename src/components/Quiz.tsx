@@ -11,9 +11,16 @@ interface Props {
   addWrong: (id: string) => void;
   removeWrong: (id: string) => void;
   recordAnswer: (isCorrect: boolean) => void;
+  // 퀴즈 응답 세분화 로그 (분석/숙달용)
+  logResponse: (r: {
+    word: VocabWord;
+    quizType: "meaning" | "fill";
+    isCorrect: boolean;
+    chosenWordId: string | null;
+  }) => void;
 }
 
-export default function Quiz({ words, addWrong, removeWrong, recordAnswer }: Props) {
+export default function Quiz({ words, addWrong, removeWrong, recordAnswer, logResponse }: Props) {
   // 퀴즈 문항은 한 번 만들고, "다시 풀기" 할 때만 새로 만든다.
   const [round, setRound] = useState(0);
   const questions = useMemo(() => buildQuiz(words, MAX_QUESTIONS), [words, round]);
@@ -71,6 +78,13 @@ export default function Quiz({ words, addWrong, removeWrong, recordAnswer }: Pro
 
     const isCorrect = option.id === question.answer.id;
     recordAnswer(isCorrect);
+    // 문항 단위 로그 + 단어 숙달 갱신 (분석용)
+    logResponse({
+      word: question.answer,
+      quizType: question.type,
+      isCorrect,
+      chosenWordId: option.id,
+    });
     if (isCorrect) {
       setScore((s) => s + 1);
       removeWrong(question.answer.id); // 맞히면 오답 목록에서 제거
