@@ -1,30 +1,24 @@
-import type { Mode } from "../types";
+import { NavLink } from "react-router-dom";
 
-// 학습 모드 선택 (어휘 카드 / 퀴즈 풀기 / 오답 복습)
-const MODES: { value: Mode; label: string }[] = [
-  { value: "card", label: "📇 어휘 카드" },
-  { value: "quiz", label: "📝 퀴즈 풀기" },
-  { value: "review", label: "🔁 오답 복습" },
+// 학습 모드 선택 (어휘 카드 / 퀴즈 풀기 / 오답 복습) — 라우트 기반 내비게이션
+const MODES: { to: string; label: string }[] = [
+  { to: "/cards", label: "📇 어휘 카드" },
+  { to: "/quiz", label: "📝 퀴즈 풀기" },
+  { to: "/review", label: "🔁 오답 복습" },
 ];
 
-interface Props {
-  value: Mode;
-  onChange: (value: Mode) => void;
-}
-
-export default function ModeTabs({ value, onChange }: Props) {
+export default function ModeTabs() {
   return (
-    <div className="button-row mode-tabs" role="group" aria-label="학습 모드 선택">
+    <nav className="button-row mode-tabs" aria-label="학습 모드 선택">
       {MODES.map((mode) => (
-        <button
-          key={mode.value}
-          className={`pill ${value === mode.value ? "active" : ""}`}
-          aria-pressed={value === mode.value}
-          onClick={() => onChange(mode.value)}
+        <NavLink
+          key={mode.to}
+          to={mode.to}
+          className={({ isActive }) => `pill ${isActive ? "active" : ""}`}
         >
           {mode.label}
-        </button>
+        </NavLink>
       ))}
-    </div>
+    </nav>
   );
 }

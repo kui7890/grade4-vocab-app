@@ -76,6 +76,9 @@ button {
   margin: 16px 0;
 }
 .pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 48px;
   padding: 10px 20px;
   border: 2px solid var(--border);
@@ -84,6 +87,7 @@ button {
   border-radius: 999px;
   font-size: 17px;
   font-weight: 600;
+  text-decoration: none; /* NavLink(<a>)로 쓰일 때 밑줄 제거 */
   transition: transform 0.05s ease, background 0.15s ease, border-color 0.15s ease;
 }
 .pill:hover {

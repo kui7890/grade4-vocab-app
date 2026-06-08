@@ -1,75 +1,51 @@
-import { useMemo, useState } from "react";
-import type { Mode, SubjectFilterValue } from "./types";
-import { VOCAB_DB } from "./data/vocab";
+import { Routes, Route, Navigate, useOutletContext } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
-import { useWrongWords } from "./hooks/useWrongWords";
-import { useStats } from "./hooks/useStats";
 import Login from "./components/Login";
-import Header from "./components/Header";
-import SubjectFilter from "./components/SubjectFilter";
-import ModeTabs from "./components/ModeTabs";
-import StatusBar from "./components/StatusBar";
+import LearningLayout, { type LearningContext } from "./layouts/LearningLayout";
+import TeacherPage from "./pages/TeacherPage";
 import Flashcard from "./components/Flashcard";
 import Quiz from "./components/Quiz";
 import ReviewNotes from "./components/ReviewNotes";
 
+// 하위 학습 라우트들은 LearningLayout이 내려주는 Outlet context를 사용한다.
+function CardsRoute() {
+  const { filteredWords } = useOutletContext<LearningContext>();
+  return <Flashcard words={filteredWords} />;
+}
+
+function QuizRoute() {
+  const { filteredWords, addWrong, removeWrong, recordAnswer } = useOutletContext<LearningContext>();
+  return (
+    <Quiz words={filteredWords} addWrong={addWrong} removeWrong={removeWrong} recordAnswer={recordAnswer} />
+  );
+}
+
+function ReviewRoute() {
+  const { wrongWords, removeWrong } = useOutletContext<LearningContext>();
+  return <ReviewNotes words={wrongWords} removeWrong={removeWrong} />;
+}
+
 export default function App() {
-  const { student, logout } = useAuth();
-  const [subject, setSubject] = useState<SubjectFilterValue>("전체");
-  const [mode, setMode] = useState<Mode>("card");
-
-  // 로그인한 학생 기준으로 오답/통계를 Supabase에서 불러옵니다.
-  const studentId = student?.id ?? null;
-  const { wrongIds, addWrong, removeWrong } = useWrongWords(studentId);
-  const { recordAnswer, accuracy, stats } = useStats(studentId);
-
-  // 선택된 과목에 맞는 어휘 목록
-  const filteredWords = useMemo(
-    () => (subject === "전체" ? VOCAB_DB : VOCAB_DB.filter((w) => w.subject === subject)),
-    [subject]
-  );
-
-  // 오답으로 저장된 어휘 목록 (VOCAB_DB에서 id로 조회)
-  const wrongWords = useMemo(
-    () =>
-      wrongIds
-        .map((id) => VOCAB_DB.find((w) => w.id === id))
-        .filter((w): w is NonNullable<typeof w> => Boolean(w)),
-    [wrongIds]
-  );
-
-  // 로그인 전에는 로그인/회원가입 화면을 보여줍니다.
-  if (!student) {
-    return (
-      <div className="app">
-        <Login />
-      </div>
-    );
-  }
+  const { student } = useAuth();
 
   return (
-    <div className="app">
-      <Header studentName={student.username} onLogout={logout} />
-      <SubjectFilter value={subject} onChange={setSubject} />
-      <ModeTabs value={mode} onChange={setMode} />
-      <StatusBar
-        subject={subject}
-        wordCount={filteredWords.length}
-        wrongCount={wrongWords.length}
-        accuracy={accuracy}
-        attempts={stats.attempts}
-      />
+    <Routes>
+      {/* 교사 화면은 로그인 여부와 무관하게 접근 가능 (PIN으로 보호) */}
+      <Route path="/teacher" element={<TeacherPage />} />
 
-      {mode === "card" && <Flashcard words={filteredWords} />}
-      {mode === "quiz" && (
-        <Quiz
-          words={filteredWords}
-          addWrong={addWrong}
-          removeWrong={removeWrong}
-          recordAnswer={recordAnswer}
-        />
+      {student ? (
+        // 로그인 상태: 공통 학습 레이아웃 + 모드별 라우트
+        <Route element={<LearningLayout />}>
+          <Route path="/" element={<Navigate to="/cards" replace />} />
+          <Route path="/cards" element={<CardsRoute />} />
+          <Route path="/quiz" element={<QuizRoute />} />
+          <Route path="/review" element={<ReviewRoute />} />
+          <Route path="*" element={<Navigate to="/cards" replace />} />
+        </Route>
+      ) : (
+        // 비로그인 상태: 어떤 경로든 로그인/회원가입 화면
+        <Route path="*" element={<div className="app"><Login /></div>} />
       )}
-      {mode === "review" && <ReviewNotes words={wrongWords} removeWrong={removeWrong} />}
-    </div>
+    </Routes>
   );
 }

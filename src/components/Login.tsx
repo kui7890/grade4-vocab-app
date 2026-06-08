@@ -1,8 +1,8 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { friendlyError } from "../lib/api";
 import { isSupabaseConfigured } from "../lib/supabase";
-import AdminPanel from "./AdminPanel";
 
 // 로그인 / 회원가입 화면 (로그인 전에 표시)
 export default function Login() {
@@ -12,7 +12,6 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [adminOpen, setAdminOpen] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -111,12 +110,10 @@ export default function Login() {
       </div>
 
       <div style={{ textAlign: "center", marginTop: 18 }}>
-        <button className="link-btn" type="button" onClick={() => setAdminOpen(true)}>
+        <Link className="link-btn" to="/teacher">
           관리자 (선생님용)
-        </button>
+        </Link>
       </div>
-
-      {adminOpen && <AdminPanel onClose={() => setAdminOpen(false)} />}
     </div>
   );
 }
