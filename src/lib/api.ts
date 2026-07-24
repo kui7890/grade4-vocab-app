@@ -140,6 +140,30 @@ export async function recordQuizResponse(r: QuizResponseInput): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+// ── 개별화 학습 세트 (P2) ──────────────────────────────────
+export type PersonalizedReason = "wrong" | "learning" | "new" | "mastered";
+
+export interface PersonalizedItem {
+  word_id: string;
+  reason: PersonalizedReason;
+}
+
+// 오답 > 낮은 정답률 > 미학습 순으로 학습할 단어를 골라 온다.
+export async function getPersonalizedSet(
+  studentId: string,
+  wordIds: string[],
+  size = 8
+): Promise<PersonalizedItem[]> {
+  const sb = requireClient();
+  const { data, error } = await sb.rpc("get_personalized_set", {
+    p_student_id: studentId,
+    p_word_ids: wordIds,
+    p_size: size,
+  });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as PersonalizedItem[];
+}
+
 // ── 학생 대시보드 (P1) ─────────────────────────────────────
 export interface DashboardSubject {
   subject: string;

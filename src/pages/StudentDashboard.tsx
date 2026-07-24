@@ -4,6 +4,7 @@ import { useAuth } from "../auth/AuthContext";
 import { getStudentDashboard, type DashboardData } from "../lib/api";
 import { VOCAB_DB } from "../data/vocab";
 import type { Subject } from "../types";
+import TodayWordCard from "../components/TodayWordCard";
 
 const SUBJECTS: Subject[] = ["국어", "사회", "과학"];
 
@@ -81,6 +82,15 @@ export default function StudentDashboard() {
           <div className="stat-label">연속 학습</div>
         </div>
       </div>
+
+      {/* 개별화 학습 (핵심 행동) */}
+      <Link className="btn primary-cta" to="/learn">
+        ✨ 나에게 맞는 학습 시작하기
+        <span className="cta-sub">틀린 단어와 새 단어를 골라 5~10분 세트로 준비해요</span>
+      </Link>
+
+      {/* 오늘의 단어 */}
+      <TodayWordCard />
 
       {/* 바로가기 */}
       <div className="dash-actions">

@@ -3,9 +3,7 @@ import { Outlet } from "react-router-dom";
 import type { SubjectFilterValue, VocabWord } from "../types";
 import { VOCAB_DB } from "../data/vocab";
 import { useAuth } from "../auth/AuthContext";
-import { useWrongWords } from "../hooks/useWrongWords";
-import { useStats } from "../hooks/useStats";
-import { recordQuizResponse } from "../lib/api";
+import { useLearningData, type LogResponseInput } from "../hooks/useLearningData";
 import SubjectFilter from "../components/SubjectFilter";
 import StatusBar from "../components/StatusBar";
 
@@ -17,12 +15,7 @@ export interface LearningContext {
   removeWrong: (id: string) => void;
   recordAnswer: (isCorrect: boolean) => void;
   // 퀴즈 응답 세분화 로그 (분석/숙달용, fire-and-forget)
-  logResponse: (r: {
-    word: VocabWord;
-    quizType: "meaning" | "fill";
-    isCorrect: boolean;
-    chosenWordId: string | null;
-  }) => void;
+  logResponse: (r: LogResponseInput) => void;
 }
 
 // 학습 화면 전용 골격 (과목 필터 + 상태바 + 하위 라우트)
@@ -31,8 +24,8 @@ export default function LearningLayout() {
   const [subject, setSubject] = useState<SubjectFilterValue>("전체");
 
   const studentId = student?.id ?? null;
-  const { wrongIds, addWrong, removeWrong } = useWrongWords(studentId);
-  const { recordAnswer, accuracy, stats } = useStats(studentId);
+  const { wrongIds, addWrong, removeWrong, recordAnswer, accuracy, stats, logResponse } =
+    useLearningData(studentId);
 
   const filteredWords = useMemo(
     () => (subject === "전체" ? VOCAB_DB : VOCAB_DB.filter((w) => w.subject === subject)),
@@ -46,21 +39,6 @@ export default function LearningLayout() {
         .filter((w): w is NonNullable<typeof w> => Boolean(w)),
     [wrongIds]
   );
-
-  const logResponse: LearningContext["logResponse"] = ({ word, quizType, isCorrect, chosenWordId }) => {
-    if (!studentId) return;
-    recordQuizResponse({
-      studentId,
-      wordId: word.id,
-      subject: word.subject,
-      unit: word.unit,
-      quizType,
-      isCorrect,
-      chosenWordId,
-    }).catch(() => {
-      /* 로깅 실패는 학습 흐름을 막지 않는다 */
-    });
-  };
 
   const context: LearningContext = {
     filteredWords,

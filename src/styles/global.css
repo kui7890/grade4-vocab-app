@@ -497,6 +497,86 @@ button {
   text-align: center;
 }
 
+/* 개별화 학습 큰 버튼 (핵심 행동) */
+.primary-cta {
+  display: block;
+  width: 100%;
+  text-align: center;
+  text-decoration: none;
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  font-size: 20px;
+  font-weight: 800;
+  box-shadow: var(--shadow);
+  margin-bottom: 18px;
+}
+.primary-cta .cta-sub {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.92;
+  margin-top: 6px;
+}
+
+/* 오늘의 단어 카드 (대시보드) */
+.today-card {
+  margin-bottom: 18px;
+}
+.today-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.today-emoji {
+  font-size: 44px;
+}
+.today-label {
+  font-size: 14px;
+  color: var(--text-soft);
+}
+.today-word {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--blue-dark);
+}
+.today-tags {
+  font-size: 14px;
+  color: var(--text-soft);
+}
+.today-meaning {
+  font-size: 19px;
+  font-weight: 700;
+  margin: 14px 0 6px;
+}
+.today-example {
+  color: var(--text-soft);
+  margin: 0 0 16px;
+}
+
+/* 개별화 학습 세션 단계 표시 */
+.session-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.step-chip {
+  background: var(--card);
+  border: 2px solid var(--border);
+  color: var(--text-soft);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.step-chip.active {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+
 .dash-section {
   margin-bottom: 18px;
 }

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import type { VocabWord } from "../types";
-import { buildQuiz, makeBlankSentence } from "../utils/shuffle";
+import { buildQuiz, buildQuestionFor, makeBlankSentence } from "../utils/shuffle";
 import QuizResult from "./QuizResult";
 
 // 한 회 퀴즈에 출제할 최대 문항 수
@@ -18,12 +18,29 @@ interface Props {
     isCorrect: boolean;
     chosenWordId: string | null;
   }) => void;
+  // 지정하면 이 어휘 문항을 맨 앞에 낸다 (오늘의 단어 퀴즈)
+  focusWord?: VocabWord | null;
 }
 
-export default function Quiz({ words, addWrong, removeWrong, recordAnswer, logResponse }: Props) {
+export default function Quiz({
+  words,
+  addWrong,
+  removeWrong,
+  recordAnswer,
+  logResponse,
+  focusWord = null,
+}: Props) {
   // 퀴즈 문항은 한 번 만들고, "다시 풀기" 할 때만 새로 만든다.
   const [round, setRound] = useState(0);
-  const questions = useMemo(() => buildQuiz(words, MAX_QUESTIONS), [words, round]);
+  const questions = useMemo(() => {
+    const base = buildQuiz(words, MAX_QUESTIONS);
+    if (!focusWord) return base;
+    // 오늘의 단어를 첫 문항으로, 나머지는 중복 없이 채운다.
+    const focusQuestion = buildQuestionFor(focusWord, words);
+    if (!focusQuestion) return base;
+    const rest = base.filter((q) => q.answer.id !== focusWord.id).slice(0, MAX_QUESTIONS - 1);
+    return [focusQuestion, ...rest];
+  }, [words, round, focusWord]);
 
   const [current, setCurrent] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);

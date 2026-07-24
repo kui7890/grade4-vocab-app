@@ -1,15 +1,9 @@
 import { useMemo } from "react";
-import { VOCAB_DB } from "../data/vocab";
+import { getWordOfTheDay } from "../utils/today";
 
-// 오늘 날짜를 시드로 어휘 1개를 골라 보여 준다 (하루 동안 고정)
+// 오늘의 어휘 띠 (어휘 카드 화면 상단)
 export default function WordOfTheDay() {
-  const word = useMemo(() => {
-    const today = new Date();
-    // 연/월/일을 숫자로 합쳐 시드로 사용
-    const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-    const index = seed % VOCAB_DB.length;
-    return VOCAB_DB[index];
-  }, []);
+  const word = useMemo(() => getWordOfTheDay(), []);
 
   return (
     <section className="word-of-day" aria-label="오늘의 어휘">

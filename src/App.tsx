@@ -1,9 +1,11 @@
-import { Routes, Route, Navigate, useOutletContext } from "react-router-dom";
+import { Routes, Route, Navigate, useOutletContext, useSearchParams } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
+import { VOCAB_DB } from "./data/vocab";
 import Login from "./components/Login";
 import AppLayout from "./layouts/AppLayout";
 import LearningLayout, { type LearningContext } from "./layouts/LearningLayout";
 import StudentDashboard from "./pages/StudentDashboard";
+import PersonalizedSession from "./pages/PersonalizedSession";
 import TeacherPage from "./pages/TeacherPage";
 import Flashcard from "./components/Flashcard";
 import Quiz from "./components/Quiz";
@@ -18,6 +20,10 @@ function CardsRoute() {
 function QuizRoute() {
   const { filteredWords, addWrong, removeWrong, recordAnswer, logResponse } =
     useOutletContext<LearningContext>();
+  // /quiz?focus=<wordId> 로 오면 해당 어휘를 첫 문항으로 낸다 (오늘의 단어 퀴즈)
+  const [searchParams] = useSearchParams();
+  const focusId = searchParams.get("focus");
+  const focusWord = focusId ? VOCAB_DB.find((w) => w.id === focusId) ?? null : null;
   return (
     <Quiz
       words={filteredWords}
@@ -25,6 +31,7 @@ function QuizRoute() {
       removeWrong={removeWrong}
       recordAnswer={recordAnswer}
       logResponse={logResponse}
+      focusWord={focusWord}
     />
   );
 }
@@ -46,6 +53,7 @@ export default function App() {
         // 로그인 상태: 최상위 레이아웃(헤더+메인내비) 아래 대시보드/학습 화면
         <Route element={<AppLayout />}>
           <Route index element={<StudentDashboard />} />
+          <Route path="learn" element={<PersonalizedSession />} />
           <Route element={<LearningLayout />}>
             <Route path="cards" element={<CardsRoute />} />
             <Route path="quiz" element={<QuizRoute />} />
