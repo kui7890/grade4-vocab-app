@@ -403,6 +403,22 @@ button {
   justify-content: flex-start;
 }
 
+/* 반복 오답 강조 */
+.review-card.repeat {
+  border-color: var(--red);
+  background: var(--red-light);
+}
+.repeat-badge {
+  margin-left: auto;
+  background: var(--red);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
 /* 오늘의 어휘 띠 */
 .word-of-day {
   background: linear-gradient(135deg, var(--blue), var(--blue-dark));
@@ -460,7 +476,7 @@ button {
 /* 요약 통계 카드 (4열 → 모바일 2열) */
 .dash-stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 12px;
   margin-bottom: 18px;
 }

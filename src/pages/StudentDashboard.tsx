@@ -51,7 +51,10 @@ export default function StudentDashboard() {
   // 성장 중심 피드백 문구
   const feedback = useMemo(() => {
     if (!data || data.attempts === 0) return "오늘 첫 퀴즈를 풀어 볼까요? 카드부터 천천히 익혀도 좋아요. 🌱";
+    if (data.repeat_wrong_count > 0)
+      return `여러 번 틀린 어휘가 ${data.repeat_wrong_count}개 있어요. 이 어휘부터 다시 익혀 봐요! 🎯`;
     if (data.wrong_count > 0) return `복습할 어휘가 ${data.wrong_count}개 있어요. 오답 복습으로 한 번 더 익혀 봐요! 💪`;
+    if (data.reviewed_count > 0) return `지금까지 ${data.reviewed_count}개를 복습 완료했어요. 정말 잘하고 있어요! 🎉`;
     if (accuracy >= 80) return "정답률이 아주 좋아요! 새로운 어휘에도 도전해 봐요. 🎉";
     return "조금씩 좋아지고 있어요. 오늘도 꾸준히 연습해 봐요! 🙂";
   }, [data, accuracy]);
@@ -76,6 +79,14 @@ export default function StudentDashboard() {
         <div className="stat-card">
           <div className="stat-value">{data?.wrong_count ?? 0}</div>
           <div className="stat-label">저장된 오답</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">{data?.repeat_wrong_count ?? 0}</div>
+          <div className="stat-label">반복 오답</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">{data?.reviewed_count ?? 0}</div>
+          <div className="stat-label">복습 완료</div>
         </div>
         <div className="stat-card">
           <div className="stat-value">🔥 {data?.streak ?? 0}일</div>

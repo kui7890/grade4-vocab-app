@@ -14,7 +14,7 @@ export interface LogResponseInput {
 
 // 학습 화면(일반 학습/개별화 학습)이 공통으로 쓰는 데이터와 기록 함수 모음.
 export function useLearningData(studentId: string | null) {
-  const { wrongIds, addWrong, removeWrong } = useWrongWords(studentId);
+  const { wrongIds, addWrong, removeWrong, completeReview } = useWrongWords(studentId);
   const { recordAnswer, accuracy, stats } = useStats(studentId);
 
   // 문항 단위 로그 + 단어 숙달 갱신 (실패해도 학습 흐름을 막지 않음)
@@ -34,5 +34,14 @@ export function useLearningData(studentId: string | null) {
     [studentId]
   );
 
-  return { wrongIds, addWrong, removeWrong, recordAnswer, accuracy, stats, logResponse };
+  return {
+    wrongIds,
+    addWrong,
+    removeWrong,
+    completeReview,
+    recordAnswer,
+    accuracy,
+    stats,
+    logResponse,
+  };
 }

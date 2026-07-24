@@ -37,8 +37,8 @@ function QuizRoute() {
 }
 
 function ReviewRoute() {
-  const { wrongWords, removeWrong } = useOutletContext<LearningContext>();
-  return <ReviewNotes words={wrongWords} removeWrong={removeWrong} />;
+  const { wrongWords, completeReview, studentId } = useOutletContext<LearningContext>();
+  return <ReviewNotes words={wrongWords} studentId={studentId} completeReview={completeReview} />;
 }
 
 export default function App() {

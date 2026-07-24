@@ -78,6 +78,33 @@ export async function addWrongWord(studentId: string, wordId: string): Promise<v
   if (error) throw new Error(error.message);
 }
 
+// ── 오답 노트 상세 / 복습 완료 (P3) ────────────────────────
+export interface WrongNote {
+  word_id: string;
+  wrong_count: number;
+  correct_count: number;
+  added_at: string;
+  last_seen_at: string | null;
+}
+
+// 반복해서 틀린 단어부터 정렬해서 돌려준다.
+export async function getWrongNotes(studentId: string): Promise<WrongNote[]> {
+  const sb = requireClient();
+  const { data, error } = await sb.rpc("get_wrong_notes", { p_student_id: studentId });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as WrongNote[];
+}
+
+// 복습 완료: 기록을 남기고 오답 목록에서 제거한다.
+export async function completeReviewRemote(studentId: string, wordId: string): Promise<void> {
+  const sb = requireClient();
+  const { error } = await sb.rpc("complete_review", {
+    p_student_id: studentId,
+    p_word_id: wordId,
+  });
+  if (error) throw new Error(error.message);
+}
+
 export async function removeWrongWord(studentId: string, wordId: string): Promise<void> {
   const sb = requireClient();
   const { error } = await sb
@@ -177,6 +204,8 @@ export interface DashboardData {
   attempts: number;
   correct: number;
   wrong_count: number;
+  repeat_wrong_count: number; // 2회 이상 틀린 반복 오답 수
+  reviewed_count: number; // 복습 완료 누적 횟수
   streak: number;
   recent_wrong: string[]; // 최근 오답 word_id 목록
   subjects: DashboardSubject[];
@@ -191,6 +220,8 @@ export async function getStudentDashboard(studentId: string): Promise<DashboardD
     attempts: d.attempts ?? 0,
     correct: d.correct ?? 0,
     wrong_count: d.wrong_count ?? 0,
+    repeat_wrong_count: d.repeat_wrong_count ?? 0,
+    reviewed_count: d.reviewed_count ?? 0,
     streak: d.streak ?? 0,
     recent_wrong: d.recent_wrong ?? [],
     subjects: d.subjects ?? [],

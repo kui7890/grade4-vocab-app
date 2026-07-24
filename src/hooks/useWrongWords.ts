@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { addWrongWord, fetchWrongWords, removeWrongWord } from "../lib/api";
+import { addWrongWord, completeReviewRemote, fetchWrongWords, removeWrongWord } from "../lib/api";
 
 // 학생별 오답 어휘 id 목록을 Supabase에 저장/관리하는 훅.
 // studentId가 null이면(미로그인) 아무 동작도 하지 않습니다.
@@ -45,5 +45,15 @@ export function useWrongWords(studentId: string | null) {
     [studentId]
   );
 
-  return { wrongIds, addWrong, removeWrong };
+  // 복습 완료 (학생이 직접 누름): 복습 기록을 남기고 목록에서 제거
+  const completeReview = useCallback(
+    (id: string) => {
+      if (!studentId) return;
+      setWrongIds((prev) => prev.filter((x) => x !== id));
+      completeReviewRemote(studentId, id).catch(() => {});
+    },
+    [studentId]
+  );
+
+  return { wrongIds, addWrong, removeWrong, completeReview };
 }

@@ -13,6 +13,8 @@ export interface LearningContext {
   wrongWords: VocabWord[];
   addWrong: (id: string) => void;
   removeWrong: (id: string) => void;
+  completeReview: (id: string) => void;
+  studentId: string | null;
   recordAnswer: (isCorrect: boolean) => void;
   // 퀴즈 응답 세분화 로그 (분석/숙달용, fire-and-forget)
   logResponse: (r: LogResponseInput) => void;
@@ -24,8 +26,16 @@ export default function LearningLayout() {
   const [subject, setSubject] = useState<SubjectFilterValue>("전체");
 
   const studentId = student?.id ?? null;
-  const { wrongIds, addWrong, removeWrong, recordAnswer, accuracy, stats, logResponse } =
-    useLearningData(studentId);
+  const {
+    wrongIds,
+    addWrong,
+    removeWrong,
+    completeReview,
+    recordAnswer,
+    accuracy,
+    stats,
+    logResponse,
+  } = useLearningData(studentId);
 
   const filteredWords = useMemo(
     () => (subject === "전체" ? VOCAB_DB : VOCAB_DB.filter((w) => w.subject === subject)),
@@ -45,6 +55,8 @@ export default function LearningLayout() {
     wrongWords,
     addWrong,
     removeWrong,
+    completeReview,
+    studentId,
     recordAnswer,
     logResponse,
   };
