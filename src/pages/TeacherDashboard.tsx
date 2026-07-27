@@ -7,17 +7,19 @@ import StudentsTab from "../components/teacher/StudentsTab";
 import StudentDetailView from "../components/teacher/StudentDetailView";
 import WrongAnalysisTab from "../components/teacher/WrongAnalysisTab";
 import AssignmentsTab from "../components/teacher/AssignmentsTab";
+import ExportTab from "../components/teacher/ExportTab";
 
 // 교사용 대시보드 (/teacher)
 // PIN 확인 후 탭으로 전체 현황 / 학생별 현황을 본다.
 // PIN은 화면 상태로만 들고 있고 저장하지 않는다 (새로고침하면 다시 입력).
-type Tab = "overview" | "students" | "analysis" | "assignments";
+type Tab = "overview" | "students" | "analysis" | "assignments" | "export";
 
 const TABS: { value: Tab; label: string }[] = [
   { value: "overview", label: "📊 전체 현황" },
   { value: "students", label: "🧑‍🎓 학생별 현황" },
   { value: "analysis", label: "🔍 오답 분석" },
   { value: "assignments", label: "📋 학습 배정" },
+  { value: "export", label: "📥 자료 내보내기" },
 ];
 
 export default function TeacherDashboard() {
@@ -143,8 +145,10 @@ export default function TeacherDashboard() {
         <StudentsTab pin={authedPin} onSelectStudent={(id) => setSelectedStudent(id)} />
       ) : tab === "analysis" ? (
         <WrongAnalysisTab pin={authedPin} />
-      ) : (
+      ) : tab === "assignments" ? (
         <AssignmentsTab pin={authedPin} />
+      ) : (
+        <ExportTab pin={authedPin} />
       )}
     </div>
   );

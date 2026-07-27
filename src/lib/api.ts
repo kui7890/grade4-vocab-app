@@ -292,6 +292,72 @@ export async function completeAssignment(
   if (error) throw new Error(error.message);
 }
 
+// ── 연구용 데이터 내보내기 (P6) ────────────────────────────
+// 학생 이름은 포함되지 않고 익명 ID(anon_code)만 사용한다.
+export interface ResearchExport {
+  students: {
+    anon_code: string;
+    joined_at: string;
+    attempts: number;
+    correct: number;
+    wrong_open: number;
+    repeat_wrong: number;
+    reviewed: number;
+    mastered_words: number;
+    active_days: number;
+    last_active: string | null;
+  }[];
+  responses: {
+    anon_code: string;
+    word_id: string;
+    subject: string;
+    unit: string | null;
+    quiz_type: string;
+    is_correct: boolean;
+    chosen_word_id: string | null;
+    answered_at: string;
+  }[];
+  mastery: {
+    anon_code: string;
+    word_id: string;
+    subject: string;
+    status: string;
+    correct_count: number;
+    wrong_count: number;
+    consecutive_correct: number;
+    last_seen_at: string;
+  }[];
+  wrong_words: { anon_code: string; word_id: string; added_at: string }[];
+  reviews: { anon_code: string; word_id: string; reviewed_at: string }[];
+  assignments: {
+    anon_code: string;
+    title: string;
+    set_type: string;
+    subject: string | null;
+    word_count: number;
+    score: number | null;
+    total: number | null;
+    completed_at: string;
+  }[];
+  exported_at: string;
+}
+
+export async function adminExportResearch(pin: string): Promise<ResearchExport> {
+  const sb = requireClient();
+  const { data, error } = await sb.rpc("admin_export_research", { p_pin: pin });
+  if (error) throw new Error(error.message);
+  const d = (data ?? {}) as Partial<ResearchExport>;
+  return {
+    students: d.students ?? [],
+    responses: d.responses ?? [],
+    mastery: d.mastery ?? [],
+    wrong_words: d.wrong_words ?? [],
+    reviews: d.reviews ?? [],
+    assignments: d.assignments ?? [],
+    exported_at: d.exported_at ?? new Date().toISOString(),
+  };
+}
+
 export async function adminDeleteStudent(pin: string, studentId: string): Promise<void> {
   const sb = requireClient();
   const { error } = await sb.rpc("admin_delete_student", {
