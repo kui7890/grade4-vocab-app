@@ -730,6 +730,96 @@ button {
   font-size: 16px;
 }
 
+/* 필터 줄 (교과 · 단원 · 대상 등) */
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.filter-field {
+  flex: 1;
+  min-width: 160px;
+}
+.filter-field .field-label {
+  margin-top: 0;
+}
+select.text-input {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-soft) 50%),
+    linear-gradient(135deg, var(--text-soft) 50%, transparent 50%);
+  background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 40px;
+}
+
+/* 어휘 선택 (배정 만들기) */
+.word-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+}
+.word-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--card);
+}
+.word-chip.on {
+  border-color: var(--blue);
+  background: var(--blue-light);
+  color: var(--blue-dark);
+}
+.word-chip input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* 학생 화면: 선생님이 내준 학습 */
+.assignment-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.assignment-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+.assignment-row .btn {
+  text-decoration: none;
+}
+.assignment-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--blue-dark);
+}
+.assignment-meta {
+  font-size: 14px;
+  color: var(--text-soft);
+  margin-top: 2px;
+}
+
 /* ============================================================
    로그인 / 회원가입 / 관리자
    ============================================================ */

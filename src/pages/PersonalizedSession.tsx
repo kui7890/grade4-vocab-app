@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
-import { getPersonalizedSet, type PersonalizedReason } from "../lib/api";
+import {
+  completeAssignment,
+  getAssignments,
+  getPersonalizedSet,
+  type PersonalizedReason,
+} from "../lib/api";
 import { useLearningData } from "../hooks/useLearningData";
 import { VOCAB_DB } from "../data/vocab";
 import type { VocabWord } from "../types";
@@ -26,36 +31,64 @@ export default function PersonalizedSession() {
   const studentId = student?.id ?? null;
   const { addWrong, removeWrong, recordAnswer, logResponse } = useLearningData(studentId);
 
+  // /learn?assignment=<id> 로 오면 선생님이 배정한 어휘 세트를 학습한다.
+  const [searchParams] = useSearchParams();
+  const assignmentId = searchParams.get("assignment");
+
   const [step, setStep] = useState<Step>("loading");
   const [items, setItems] = useState<{ word: VocabWord; reason: PersonalizedReason }[]>([]);
+  const [sessionTitle, setSessionTitle] = useState("오늘의 개별화 학습");
   const [error, setError] = useState("");
 
-  // 학생 상태에 맞춘 단어 세트를 불러온다.
+  // 학습할 단어 세트를 불러온다 (배정 학습 / 개별화 학습).
   useEffect(() => {
     if (!studentId) return;
     let active = true;
-    const allIds = VOCAB_DB.map((w) => w.id);
-    getPersonalizedSet(studentId, allIds, SET_SIZE)
-      .then((rows) => {
+
+    const toItems = (ids: string[], reason: PersonalizedReason) =>
+      ids
+        .map((id) => {
+          const word = VOCAB_DB.find((w) => w.id === id);
+          return word ? { word, reason } : null;
+        })
+        .filter((x): x is { word: VocabWord; reason: PersonalizedReason } => x !== null);
+
+    const load = assignmentId
+      ? getAssignments(studentId).then((list) => {
+          const found = list.find((a) => a.id === assignmentId);
+          if (!found) throw new Error("ASSIGNMENT_NOT_FOUND");
+          if (active) setSessionTitle(found.title);
+          return toItems(found.word_ids ?? [], found.set_type === "review" ? "wrong" : "new");
+        })
+      : getPersonalizedSet(studentId, VOCAB_DB.map((w) => w.id), SET_SIZE).then((rows) =>
+          rows
+            .map((r) => {
+              const word = VOCAB_DB.find((w) => w.id === r.word_id);
+              return word ? { word, reason: r.reason } : null;
+            })
+            .filter((x): x is { word: VocabWord; reason: PersonalizedReason } => x !== null)
+        );
+
+    load
+      .then((mapped) => {
         if (!active) return;
-        const mapped = rows
-          .map((r) => {
-            const word = VOCAB_DB.find((w) => w.id === r.word_id);
-            return word ? { word, reason: r.reason } : null;
-          })
-          .filter((x): x is { word: VocabWord; reason: PersonalizedReason } => x !== null);
         setItems(mapped);
         setStep("intro");
       })
-      .catch(() => {
+      .catch((err) => {
         if (!active) return;
-        setError("학습 세트를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.");
+        setError(
+          err instanceof Error && err.message === "ASSIGNMENT_NOT_FOUND"
+            ? "배정된 학습을 찾을 수 없어요. 목록에서 다시 선택해 주세요."
+            : "학습 세트를 불러오지 못했어요. 잠시 후 다시 시도해 주세요."
+        );
         setStep("intro");
       });
+
     return () => {
       active = false;
     };
-  }, [studentId]);
+  }, [studentId, assignmentId]);
 
   const words = useMemo(() => items.map((i) => i.word), [items]);
 
@@ -107,9 +140,17 @@ export default function PersonalizedSession() {
 
       {step === "intro" && (
         <section className="panel">
-          <h2 className="dash-title">오늘의 개별화 학습</h2>
+          <h2 className="dash-title">{sessionTitle}</h2>
           <p className="dash-muted" style={{ marginBottom: 14 }}>
-            내 학습 기록에 맞춰 <b>{items.length}개</b> 단어를 골랐어요. 카드로 익힌 뒤 퀴즈로 확인해요.
+            {assignmentId ? (
+              <>
+                선생님이 배정한 <b>{items.length}개</b> 단어예요. 카드로 익힌 뒤 퀴즈로 확인해요.
+              </>
+            ) : (
+              <>
+                내 학습 기록에 맞춰 <b>{items.length}개</b> 단어를 골랐어요. 카드로 익힌 뒤 퀴즈로 확인해요.
+              </>
+            )}
           </p>
 
           <div className="statusbar" style={{ justifyContent: "flex-start", margin: "0 0 16px" }}>
@@ -157,6 +198,15 @@ export default function PersonalizedSession() {
           removeWrong={removeWrong}
           recordAnswer={recordAnswer}
           logResponse={logResponse}
+          // 세트가 작아도 보기는 전체 어휘에서 뽑고, 세트의 모든 단어를 출제한다.
+          distractorPool={VOCAB_DB}
+          maxQuestions={words.length}
+          onFinish={(score, total) => {
+            // 배정 학습이면 완료 상태를 기록한다.
+            if (assignmentId && studentId) {
+              completeAssignment(assignmentId, studentId, score, total).catch(() => {});
+            }
+          }}
         />
       )}
 

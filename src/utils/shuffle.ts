@@ -22,15 +22,22 @@ export function buildQuestionFor(answer: VocabWord, pool: VocabWord[]): QuizQues
 
 // 어휘 목록으로 퀴즈 문항들을 만든다.
 // - count: 만들 문항 수 (어휘가 부족하면 가능한 만큼)
-// - 보기: 정답 1개 + 오답 3개 (같은 후보 풀에서 무작위)
-export function buildQuiz(words: VocabWord[], count: number): QuizQuestion[] {
-  // 보기를 4개 만들려면 최소 4개의 어휘가 필요하다.
-  if (words.length < 4) return [];
+// - 보기: 정답 1개 + 오답 3개
+// - distractorPool: 오답 보기를 뽑을 후보 (생략하면 words 자신)
+//   배정 학습처럼 어휘가 3개 이하인 세트도 전체 어휘에서 보기를 만들 수 있다.
+export function buildQuiz(
+  words: VocabWord[],
+  count: number,
+  distractorPool?: VocabWord[]
+): QuizQuestion[] {
+  const pool = distractorPool ?? words;
+  // 보기를 4개 만들려면 후보가 최소 4개 필요하다.
+  if (words.length === 0 || pool.length < 4) return [];
 
   const picked = shuffle(words).slice(0, Math.min(count, words.length));
 
   return picked
-    .map((answer) => buildQuestionFor(answer, words))
+    .map((answer) => buildQuestionFor(answer, pool))
     .filter((q): q is QuizQuestion => q !== null);
 }
 

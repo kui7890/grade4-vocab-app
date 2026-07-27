@@ -5,11 +5,20 @@ import { isSupabaseConfigured } from "../lib/supabase";
 import OverviewTab from "../components/teacher/OverviewTab";
 import StudentsTab from "../components/teacher/StudentsTab";
 import StudentDetailView from "../components/teacher/StudentDetailView";
+import WrongAnalysisTab from "../components/teacher/WrongAnalysisTab";
+import AssignmentsTab from "../components/teacher/AssignmentsTab";
 
 // 교사용 대시보드 (/teacher)
 // PIN 확인 후 탭으로 전체 현황 / 학생별 현황을 본다.
 // PIN은 화면 상태로만 들고 있고 저장하지 않는다 (새로고침하면 다시 입력).
-type Tab = "overview" | "students";
+type Tab = "overview" | "students" | "analysis" | "assignments";
+
+const TABS: { value: Tab; label: string }[] = [
+  { value: "overview", label: "📊 전체 현황" },
+  { value: "students", label: "🧑‍🎓 학생별 현황" },
+  { value: "analysis", label: "🔍 오답 분석" },
+  { value: "assignments", label: "📋 학습 배정" },
+];
 
 export default function TeacherDashboard() {
   const [pin, setPin] = useState("");
@@ -101,26 +110,19 @@ export default function TeacherDashboard() {
       </header>
 
       <nav className="button-row mode-tabs" aria-label="교사 메뉴">
-        <button
-          className={`pill ${tab === "overview" && !selectedStudent ? "active" : ""}`}
-          type="button"
-          onClick={() => {
-            setTab("overview");
-            setSelectedStudent(null);
-          }}
-        >
-          📊 전체 현황
-        </button>
-        <button
-          className={`pill ${tab === "students" || selectedStudent ? "active" : ""}`}
-          type="button"
-          onClick={() => {
-            setTab("students");
-            setSelectedStudent(null);
-          }}
-        >
-          🧑‍🎓 학생별 현황
-        </button>
+        {TABS.map((t) => (
+          <button
+            key={t.value}
+            className={`pill ${tab === t.value ? "active" : ""}`}
+            type="button"
+            onClick={() => {
+              setTab(t.value);
+              setSelectedStudent(null);
+            }}
+          >
+            {t.label}
+          </button>
+        ))}
       </nav>
 
       {selectedStudent ? (
@@ -137,8 +139,12 @@ export default function TeacherDashboard() {
             setSelectedStudent(id);
           }}
         />
-      ) : (
+      ) : tab === "students" ? (
         <StudentsTab pin={authedPin} onSelectStudent={(id) => setSelectedStudent(id)} />
+      ) : tab === "analysis" ? (
+        <WrongAnalysisTab pin={authedPin} />
+      ) : (
+        <AssignmentsTab pin={authedPin} />
       )}
     </div>
   );

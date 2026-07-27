@@ -161,6 +161,137 @@ export async function adminGetStudentDetail(pin: string, studentId: string): Pro
   return data as StudentDetail;
 }
 
+// ── 오답 분석 (P5) ─────────────────────────────────────────
+export interface WrongWordRow {
+  word_id: string;
+  subject: string;
+  unit: string;
+  wrong_count: number;
+  total: number;
+  student_count: number;
+}
+
+export interface WrongAnalysis {
+  words: WrongWordRow[];
+  subjects: { subject: string; total: number; wrong_count: number }[];
+  units: { subject: string; unit: string; total: number; wrong_count: number }[];
+  students: {
+    student_id: string;
+    username: string;
+    anon_code: string | null;
+    word_id: string;
+    subject: string;
+    wrong_count: number;
+  }[];
+  filters: { subject: string; unit: string }[];
+}
+
+export async function adminGetWrongAnalysis(
+  pin: string,
+  subject?: string | null,
+  unit?: string | null
+): Promise<WrongAnalysis> {
+  const sb = requireClient();
+  const { data, error } = await sb.rpc("admin_get_wrong_analysis", {
+    p_pin: pin,
+    p_subject: subject ?? null,
+    p_unit: unit ?? null,
+  });
+  if (error) throw new Error(error.message);
+  const d = (data ?? {}) as Partial<WrongAnalysis>;
+  return {
+    words: d.words ?? [],
+    subjects: d.subjects ?? [],
+    units: d.units ?? [],
+    students: d.students ?? [],
+    filters: d.filters ?? [],
+  };
+}
+
+// ── 학습 배정 (P5) ─────────────────────────────────────────
+export interface Assignment {
+  id: string;
+  title: string;
+  set_type: "subject" | "review";
+  subject: string | null;
+  word_ids: string[];
+  word_count: number;
+  due_date: string | null;
+  created_at: string;
+  target_student_id?: string | null;
+  target_username?: string | null;
+  target_count?: number;
+  done_count?: number;
+  // 학생용 필드
+  completed?: boolean;
+  score?: number | null;
+  total?: number | null;
+}
+
+export async function adminCreateAssignment(params: {
+  pin: string;
+  title: string;
+  studentId: string | null;
+  setType: "subject" | "review";
+  subject: string | null;
+  wordIds: string[];
+  dueDate: string | null;
+}): Promise<string> {
+  const sb = requireClient();
+  const { data, error } = await sb.rpc("admin_create_assignment", {
+    p_pin: params.pin,
+    p_title: params.title,
+    p_student_id: params.studentId,
+    p_set_type: params.setType,
+    p_subject: params.subject,
+    p_word_ids: params.wordIds,
+    p_due_date: params.dueDate,
+  });
+  if (error) throw new Error(error.message);
+  return data as string;
+}
+
+export async function adminListAssignments(pin: string): Promise<Assignment[]> {
+  const sb = requireClient();
+  const { data, error } = await sb.rpc("admin_list_assignments", { p_pin: pin });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as Assignment[];
+}
+
+export async function adminDeleteAssignment(pin: string, assignmentId: string): Promise<void> {
+  const sb = requireClient();
+  const { error } = await sb.rpc("admin_delete_assignment", {
+    p_pin: pin,
+    p_assignment_id: assignmentId,
+  });
+  if (error) throw new Error(error.message);
+}
+
+// 학생: 나에게 배정된 학습 목록
+export async function getAssignments(studentId: string): Promise<Assignment[]> {
+  const sb = requireClient();
+  const { data, error } = await sb.rpc("get_assignments", { p_student_id: studentId });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as Assignment[];
+}
+
+// 학생: 배정 학습 완료 처리
+export async function completeAssignment(
+  assignmentId: string,
+  studentId: string,
+  score: number,
+  total: number
+): Promise<void> {
+  const sb = requireClient();
+  const { error } = await sb.rpc("complete_assignment", {
+    p_assignment_id: assignmentId,
+    p_student_id: studentId,
+    p_score: score,
+    p_total: total,
+  });
+  if (error) throw new Error(error.message);
+}
+
 export async function adminDeleteStudent(pin: string, studentId: string): Promise<void> {
   const sb = requireClient();
   const { error } = await sb.rpc("admin_delete_student", {

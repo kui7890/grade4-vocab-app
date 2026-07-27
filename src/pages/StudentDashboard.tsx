@@ -5,6 +5,7 @@ import { getStudentDashboard, type DashboardData } from "../lib/api";
 import { VOCAB_DB } from "../data/vocab";
 import type { Subject } from "../types";
 import TodayWordCard from "../components/TodayWordCard";
+import AssignmentList from "../components/AssignmentList";
 
 const SUBJECTS: Subject[] = ["국어", "사회", "과학"];
 
@@ -93,6 +94,9 @@ export default function StudentDashboard() {
           <div className="stat-label">연속 학습</div>
         </div>
       </div>
+
+      {/* 선생님이 내준 학습 (있을 때만 표시) */}
+      {student && <AssignmentList studentId={student.id} />}
 
       {/* 개별화 학습 (핵심 행동) */}
       <Link className="btn primary-cta" to="/learn">

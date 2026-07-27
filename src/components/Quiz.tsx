@@ -20,6 +20,12 @@ interface Props {
   }) => void;
   // 지정하면 이 어휘 문항을 맨 앞에 낸다 (오늘의 단어 퀴즈)
   focusWord?: VocabWord | null;
+  // 퀴즈를 모두 풀었을 때 한 번 호출 (배정 학습 완료 처리 등)
+  onFinish?: (score: number, total: number) => void;
+  // 오답 보기를 뽑을 후보 (생략하면 words 자신)
+  distractorPool?: VocabWord[];
+  // 출제할 최대 문항 수 (생략하면 5)
+  maxQuestions?: number;
 }
 
 export default function Quiz({
@@ -29,18 +35,22 @@ export default function Quiz({
   recordAnswer,
   logResponse,
   focusWord = null,
+  onFinish,
+  distractorPool,
+  maxQuestions = MAX_QUESTIONS,
 }: Props) {
   // 퀴즈 문항은 한 번 만들고, "다시 풀기" 할 때만 새로 만든다.
   const [round, setRound] = useState(0);
   const questions = useMemo(() => {
-    const base = buildQuiz(words, MAX_QUESTIONS);
+    const pool = distractorPool ?? words;
+    const base = buildQuiz(words, maxQuestions, pool);
     if (!focusWord) return base;
     // 오늘의 단어를 첫 문항으로, 나머지는 중복 없이 채운다.
-    const focusQuestion = buildQuestionFor(focusWord, words);
+    const focusQuestion = buildQuestionFor(focusWord, pool);
     if (!focusQuestion) return base;
-    const rest = base.filter((q) => q.answer.id !== focusWord.id).slice(0, MAX_QUESTIONS - 1);
+    const rest = base.filter((q) => q.answer.id !== focusWord.id).slice(0, maxQuestions - 1);
     return [focusQuestion, ...rest];
-  }, [words, round, focusWord]);
+  }, [words, round, focusWord, distractorPool, maxQuestions]);
 
   const [current, setCurrent] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -118,6 +128,7 @@ export default function Quiz({
     }
     if (isLast) {
       setFinished(true);
+      onFinish?.(score, questions.length);
       return;
     }
     setCurrent((c) => c + 1);
