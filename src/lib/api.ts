@@ -48,6 +48,119 @@ export async function adminListStudents(pin: string): Promise<AdminStudent[]> {
   return (data ?? []) as AdminStudent[];
 }
 
+// ── 교사 대시보드 (P4) ─────────────────────────────────────
+export interface TopWrongWord {
+  word_id: string;
+  subject: string;
+  wrong_count: number;
+  total: number;
+  student_count: number;
+}
+
+export interface NeedHelpStudent {
+  student_id: string;
+  username: string;
+  anon_code: string | null;
+  attempts: number;
+  correct: number;
+  wrong_count: number;
+}
+
+export interface TeacherOverview {
+  student_count: number;
+  attempts: number;
+  correct: number;
+  active_7d: number;
+  wrong_total: number;
+  top_wrong_words: TopWrongWord[];
+  need_help: NeedHelpStudent[];
+}
+
+export async function adminGetOverview(pin: string): Promise<TeacherOverview> {
+  const sb = requireClient();
+  const { data, error } = await sb.rpc("admin_get_overview", { p_pin: pin });
+  if (error) throw new Error(error.message);
+  const d = (data ?? {}) as Partial<TeacherOverview>;
+  return {
+    student_count: d.student_count ?? 0,
+    attempts: d.attempts ?? 0,
+    correct: d.correct ?? 0,
+    active_7d: d.active_7d ?? 0,
+    wrong_total: d.wrong_total ?? 0,
+    top_wrong_words: d.top_wrong_words ?? [],
+    need_help: d.need_help ?? [],
+  };
+}
+
+export interface StudentRow {
+  student_id: string;
+  username: string;
+  anon_code: string | null;
+  attempts: number;
+  correct: number;
+  wrong_count: number;
+  repeat_wrong: number;
+  reviewed_count: number;
+  last_active: string | null;
+  created_at: string;
+}
+
+export async function adminListStudentsDetail(pin: string): Promise<StudentRow[]> {
+  const sb = requireClient();
+  const { data, error } = await sb.rpc("admin_list_students_detail", { p_pin: pin });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as StudentRow[];
+}
+
+export interface StudentDetail {
+  profile: {
+    student_id: string;
+    username: string;
+    anon_code: string | null;
+    created_at: string;
+    attempts: number;
+    correct: number;
+    last_active: string | null;
+    wrong_count: number;
+    reviewed_count: number;
+    mastered_words: number;
+  };
+  subjects: {
+    subject: string;
+    attempts: number;
+    correct: number;
+    attempted_words: number;
+    mastered_words: number;
+  }[];
+  weak_units: { subject: string; unit: string; attempts: number; wrong_count: number }[];
+  repeat_words: {
+    word_id: string;
+    subject: string;
+    wrong_count: number;
+    correct_count: number;
+    status: string;
+  }[];
+  recent: {
+    word_id: string;
+    subject: string;
+    unit: string | null;
+    quiz_type: string;
+    is_correct: boolean;
+    created_at: string;
+  }[];
+  daily: { day: string; attempts: number; correct: number }[];
+}
+
+export async function adminGetStudentDetail(pin: string, studentId: string): Promise<StudentDetail> {
+  const sb = requireClient();
+  const { data, error } = await sb.rpc("admin_get_student_detail", {
+    p_pin: pin,
+    p_student_id: studentId,
+  });
+  if (error) throw new Error(error.message);
+  return data as StudentDetail;
+}
+
 export async function adminDeleteStudent(pin: string, studentId: string): Promise<void> {
   const sb = requireClient();
   const { error } = await sb.rpc("admin_delete_student", {

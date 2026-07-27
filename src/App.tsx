@@ -6,7 +6,7 @@ import AppLayout from "./layouts/AppLayout";
 import LearningLayout, { type LearningContext } from "./layouts/LearningLayout";
 import StudentDashboard from "./pages/StudentDashboard";
 import PersonalizedSession from "./pages/PersonalizedSession";
-import TeacherPage from "./pages/TeacherPage";
+import TeacherDashboard from "./pages/TeacherDashboard";
 import Flashcard from "./components/Flashcard";
 import Quiz from "./components/Quiz";
 import ReviewNotes from "./components/ReviewNotes";
@@ -47,7 +47,7 @@ export default function App() {
   return (
     <Routes>
       {/* 교사 화면은 로그인 여부와 무관하게 접근 가능 (PIN으로 보호) */}
-      <Route path="/teacher" element={<TeacherPage />} />
+      <Route path="/teacher" element={<TeacherDashboard />} />
 
       {student ? (
         // 로그인 상태: 최상위 레이아웃(헤더+메인내비) 아래 대시보드/학습 화면

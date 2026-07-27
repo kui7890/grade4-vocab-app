@@ -672,6 +672,65 @@ button {
 }
 
 /* ============================================================
+   교사용 대시보드 (표 중심)
+   ============================================================ */
+.teacher {
+  max-width: 1100px;
+}
+
+/* 좁은 화면에서 표가 잘리지 않도록 가로 스크롤 */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+  white-space: nowrap;
+}
+.data-table th,
+.data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.data-table th {
+  font-size: 14px;
+  color: var(--text-soft);
+  font-weight: 700;
+  border-bottom: 2px solid var(--border);
+}
+.data-table tbody tr:hover {
+  background: var(--blue-light);
+}
+.data-table td.num,
+.data-table th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.data-table td.strong {
+  font-weight: 700;
+  color: var(--blue-dark);
+}
+.data-table td.muted {
+  color: var(--text-soft);
+  font-size: 14px;
+}
+.data-table td.danger {
+  color: var(--red);
+  font-weight: 700;
+}
+.data-table td.ok {
+  color: var(--green);
+  font-weight: 700;
+}
+.data-table .link-btn {
+  padding: 0;
+  font-size: 16px;
+}
+
+/* ============================================================
    로그인 / 회원가입 / 관리자
    ============================================================ */
 .auth-wrap {
